@@ -1,0 +1,18 @@
+{
+  "name": "rag-document-processor",
+  "version": "1.0.0",
+  "description": "ingests pdf documents and create embeddings via Bedrock for LanceDB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.438.0",
+    "@lancedb/vectordb-linux-x64-gnu": "^0.3.5",
+    "langchain": "^0.0.178",
+    "pdf-parse": "^1.1.1",
+    "vectordb": "^0.1.19"
+  },
+  "author": "gbatt@amazon.com",
+  "license": "ISC"
+}

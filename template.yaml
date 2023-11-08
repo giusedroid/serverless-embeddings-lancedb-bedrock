@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  node18.x
+
+  Sample SAM Template for streaming-rag-on-lambda
+
+
+Resources:
+
+  DocumentBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region}-${AWS::AccountId}"
+
+  DocumentProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Timeout: 900
+      MemorySize: 512
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          s3BucketName: !Sub "${AWS::StackName}-${AWS::Region}-${AWS::AccountId}"
+          region: !Ref AWS::Region
+          lanceDbTable: doc_table
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: 
+                - 'bedrock:InvokeModel'
+              Resource: '*'
+            - Effect: Allow
+              Action: 
+                - 's3:GetObject'
+                - 's3:PutObject'
+                - 's3:List*'
+              Resource: 
+                - !Sub arn:aws:s3:::${AWS::StackName}-${AWS::Region}-${AWS::AccountId}/*
+                - !Sub arn:aws:s3:::${AWS::StackName}-${AWS::Region}-${AWS::AccountId}
+      Events:
+        S3DocumentUpload:
+          Type: S3
+          Properties:
+            Bucket: !Ref DocumentBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: documents/
+    Metadata:
+      DockerTag: nodejs18.x-v1
+      DockerContext: ./document-processor
+      Dockerfile: Dockerfile
+
+
+Outputs:
+  DocumentProcessorFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt DocumentProcessorFunction.Arn
+  DocumentProcessorFunctionIamRole:
+    Description: "Implicit IAM Role created for Document Processor function"
+    Value: !GetAtt DocumentProcessorFunctionRole.Arn
+  DocumentBucketName:
+    Description: "S3 bucket where LanceDB sources embeddings. Check this repository README for instructions on how to import your documents"
+    Value: !Ref DocumentBucket
+  DocumentTableName:
+    Description: "Name of the Document Table in LanceDB"
+    Value: doc_table
+  DeploymentRegion:
+    Description: "Where this stack is deployed"
+    Value: !Sub ${AWS::Region}
