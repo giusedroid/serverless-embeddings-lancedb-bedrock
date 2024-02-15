@@ -69,11 +69,11 @@ create a file named `prompt.json` in the folder `./events` similar to the follow
 
 ### Query LanceDB
 ```bash
-./20-ingest.sh <your-stack-name> /path/to/your/prompt/file
+./20-query.sh <your-stack-name> /path/to/your/prompt/file
 ```
 for example
 ```bash
-./20-ingest.sh my-sam-stack ./events/prompt.json
+./20-query.sh my-sam-stack ./events/prompt.json
 ```
 
 **Expected Output**
